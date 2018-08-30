@@ -12,12 +12,12 @@ class TodoListViewController: UITableViewController {
 
     let TODO_ITEM_ARRAY_KEY = "TodoItemArray"
     
-    var itemArray = ["a","b","c"]
+    var itemArray : [String] = []
     let defaults = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        if let items = self.defaults.array(forKey: TODO_ITEM_ARRAY_KEY) as? [String]{
+        if let items = defaults.array(forKey: TODO_ITEM_ARRAY_KEY) as? [String]{
             itemArray = items
         }
     }
