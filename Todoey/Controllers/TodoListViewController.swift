@@ -31,7 +31,6 @@ class TodoListViewController: UITableViewController {
         let todoItem = itemArray[indexPath.row];
         cell.textLabel?.text = todoItem.title
         cell.accessoryType = todoItem.done ? .checkmark : .none
-        
         return cell
     }
     
@@ -90,7 +89,7 @@ class TodoListViewController: UITableViewController {
             let decoder = PropertyListDecoder()
             do {
                 let decodedData = try decoder.decode([TodoItem].self, from: encodedData)
-                self.itemArray = decodedData as! [TodoItem]
+                self.itemArray = decodedData as [TodoItem]
             }catch{
                 print("Error while decoding : \(error)")
             }
