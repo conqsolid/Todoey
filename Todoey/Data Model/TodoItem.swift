@@ -7,9 +7,12 @@
 //
 
 import Foundation
+import RealmSwift
 
-class TodoItem : Codable{
+class TodoItem: Object {
     
-    var title : String = ""
-    var done : Bool = false
+    @objc dynamic var title : String = ""
+    @objc dynamic var done : Bool = false
+    @objc dynamic var dateCreated : Date?
+    let parentCategory = LinkingObjects(fromType: Category.self, property: "items")
 }
