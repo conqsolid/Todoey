@@ -7,10 +7,10 @@
 //
 
 import UIKit
-import CoreData
+import SwipeCellKit
 import RealmSwift
 
-class CategoryViewController: UITableViewController {
+class CategoryViewController: SwipeTableViewController {
 
     let realm = try! Realm()
     
@@ -19,12 +19,7 @@ class CategoryViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         loadCategories()
-
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+        tableView.separatorStyle = .none
     }
 
     // MARK: - Table view data source
@@ -49,9 +44,18 @@ class CategoryViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "categoryItem", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
-        cell.textLabel?.text = categories?[indexPath.row].name ?? "No Categories Added Yet"
+        if let category = categories?[indexPath.row]{
+            cell.textLabel?.text = category.name
+            guard let categoryColor = UIColor(hexString: category.backColor) else {fatalError()}
+            
+            cell.backgroundColor = categoryColor
+            cell.textLabel?.backgroundColor = categoryColor
+            
+        }else{
+            cell.textLabel?.text = "No Categories Added Yet"
+        }
         
         return cell
     }
@@ -60,12 +64,13 @@ class CategoryViewController: UITableViewController {
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         
         var textField = UITextField();
-        let addCategoryAlert = UIAlertController(title: "", message: "Add Category", preferredStyle: .alert)
-        let addCategoryAlertButton = UIAlertAction(title: "Add Category", style: .default) { (alertAction) in
+        let addCategoryAlert = UIAlertController(title: "", message: "Add New Category", preferredStyle: .alert)
+        let addButton = UIAlertAction(title: "Add", style: .default) { (alertAction) in
             if textField.text != nil{
                 let newCategory = Category()
                 newCategory.name = textField.text!
                 newCategory.dateCreated = Date()
+                newCategory.backColor = UIColor.randomFlat().hexValue()
                 self.save(category: newCategory)
             }
         }
@@ -73,8 +78,10 @@ class CategoryViewController: UITableViewController {
             alertTextField.placeholder = "Category Name"
             textField = alertTextField
         }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         
-        addCategoryAlert.addAction(addCategoryAlertButton)
+        addCategoryAlert.addAction(addButton)
+        addCategoryAlert.addAction(cancelAction)
         present(addCategoryAlert, animated: true,completion: nil)
 
     }
@@ -95,6 +102,20 @@ class CategoryViewController: UITableViewController {
         tableView.reloadData()
     }
     
+    override func updateModel(at indexPath: IndexPath) {
+        if let tobeDeletedCategory = categories?[indexPath.row]{
+            do{
+                try realm.write {
+                    realm.delete(tobeDeletedCategory)
+                }
+            }catch{
+                print("Error deleting category : \(error)")
+            }
+            tableView.reloadData()
+        }
+        
+    }
+    
 }
 
 extension CategoryViewController : UISearchBarDelegate {
@@ -112,4 +133,5 @@ extension CategoryViewController : UISearchBarDelegate {
             }
         }
     }
+    
 }
